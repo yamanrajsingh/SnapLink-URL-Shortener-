@@ -92,7 +92,15 @@ public class UrlServiceImpl implements UrlService {
     public String getOriginalUrl(String shortCode)
     {
         Url url  = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
+        url.setClickCount(url.getClickCount()+1);
+        urlRepository.save(url);
         return url.getOriginalUrl();
+    }
+
+    @Override
+    public UrlResponse getUrlByShortCode(String shortCode) {
+        Url url = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
+        return this.modelMapper.map(url, UrlResponse.class);
     }
 
 }

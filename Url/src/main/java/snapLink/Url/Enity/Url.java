@@ -27,7 +27,8 @@ public class Url {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-
+    @Column(name="click_count")
+    private Long clickCount = 0L;
 
     @PrePersist
     public void onCreate() {
