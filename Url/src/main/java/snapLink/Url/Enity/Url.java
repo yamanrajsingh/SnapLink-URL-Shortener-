@@ -27,6 +27,8 @@ public class Url {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -3,7 +3,6 @@ package snapLink.Url.Service.Impl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import snapLink.Url.Dto.UrlRequest;
 import snapLink.Url.Dto.UrlResponse;
@@ -15,6 +14,7 @@ import snapLink.Url.Util.ShortCodeGenerator;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +43,7 @@ public class UrlServiceImpl implements UrlService {
                     modelMapper.map(existingUrl.get(), UrlResponse.class);
 
             response.setShortUrl(
-                    "http://localhost:8080/" + existingUrl.get().getShortCode());
+                    "http://localhost:8080" + existingUrl.get().getShortCode());
 
             return response;
         }
@@ -64,25 +64,28 @@ public class UrlServiceImpl implements UrlService {
                 modelMapper.map(savedUrl, UrlResponse.class);
 
         response.setShortUrl(
-                "http://localhost:8080/" + savedUrl.getShortCode());
+                "http://localhost:8080/api/urls" + savedUrl.getShortCode());
 
         return response;
     }
 
-    @Override
-    public UrlResponse getUrlByShortCode(String shortCode) {
-
-        return null;
-    }
 
     @Override
     public List<UrlResponse> getAllUrls() {
-        return null;
+
+        List<Url> urls = this.urlRepository.findAll();
+        return urls.stream().map(url -> this.modelMapper.map(url,UrlResponse.class)).collect(Collectors.toList());
     }
 
     @Override
     public void deleteByShortCode(String shortCode) {
-
+        Optional<Url> url = this.urlRepository.findByShortCode(shortCode);
+        if(url.isPresent()) {
+            this.urlRepository.deleteById(url.get().getId());
+        }
+        else {
+            throw new  ResourceNotFoundException("Url not found");
+        }
 
     }
     @Override

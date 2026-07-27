@@ -8,9 +8,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import snapLink.Url.Dto.UrlRequest;
 import snapLink.Url.Dto.UrlResponse;
+import snapLink.Url.Enity.Url;
 import snapLink.Url.Service.UrlService;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/urls")
@@ -26,11 +30,7 @@ public class UrlController {
 
         UrlResponse response = urlService.createShortUrl(urlRequest);
 
-        String baseUrl = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .build()
-                .toUriString();
-        response.setShortUrl(baseUrl + "/" + response.getShortCode());
+        response.setShortUrl("http://localhost:8080/api/urls" + "/" + response.getShortCode());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -39,5 +39,27 @@ public class UrlController {
     public ResponseEntity<Void> redirectToOriginalUrl( @PathVariable String shortCode) {
     String originalUrl = this.urlService.getOriginalUrl(shortCode);
      return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(originalUrl)).build();
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<UrlResponse>> getAllUrl()
+    {
+        List<UrlResponse> urls = this.urlService.getAllUrls();
+
+        urls.forEach(url ->
+                url.setShortUrl("http://localhost:8080/api/urls" + "/" + url.getShortCode()));
+        return ResponseEntity.status(HttpStatus.OK).body(urls);
+    }
+
+    @DeleteMapping("/{shortCode}")
+    public ResponseEntity<Map<String, String>> deleteByShortCode(
+            @PathVariable String shortCode) {
+
+        urlService.deleteByShortCode(shortCode);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Short URL deleted successfully.");
+
+        return ResponseEntity.ok(response);
     }
 }
