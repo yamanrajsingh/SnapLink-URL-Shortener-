@@ -3,10 +3,12 @@ package snapLink.Url.Service.Impl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import snapLink.Url.Dto.UrlRequest;
 import snapLink.Url.Dto.UrlResponse;
 import snapLink.Url.Enity.Url;
+import snapLink.Url.Exception.ResourceNotFoundException;
 import snapLink.Url.Repository.UrlRepository;
 import snapLink.Url.Service.UrlService;
 import snapLink.Url.Util.ShortCodeGenerator;
@@ -69,6 +71,7 @@ public class UrlServiceImpl implements UrlService {
 
     @Override
     public UrlResponse getUrlByShortCode(String shortCode) {
+
         return null;
     }
 
@@ -80,6 +83,13 @@ public class UrlServiceImpl implements UrlService {
     @Override
     public void deleteByShortCode(String shortCode) {
 
+
+    }
+    @Override
+    public String getOriginalUrl(String shortCode)
+    {
+        Url url  = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
+        return url.getOriginalUrl();
     }
 
 }

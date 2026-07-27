@@ -12,26 +12,6 @@ public final class ShortCodeGenerator {
     private ShortCodeGenerator() {
     }
 
-    // Base62 encoding (old approach)
-    public static String encode(Long id) {
-
-        if (id == 0) {
-            return String.valueOf(BASE62.charAt(0));
-        }
-
-        StringBuilder shortCode = new StringBuilder();
-
-        while (id > 0) {
-            int rem = (int) (id % 62);
-            shortCode.append(BASE62.charAt(rem));
-            id /= 62;
-        }
-
-        return shortCode.reverse().toString();
-    }
-
-    // Random code generation (production approach)
-
     public static String generate(int length) {
 
         StringBuilder shortCode = new StringBuilder(length);

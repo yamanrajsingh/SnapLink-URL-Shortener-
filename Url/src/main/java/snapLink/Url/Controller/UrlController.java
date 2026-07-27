@@ -10,6 +10,8 @@ import snapLink.Url.Dto.UrlRequest;
 import snapLink.Url.Dto.UrlResponse;
 import snapLink.Url.Service.UrlService;
 
+import java.net.URI;
+
 @RestController
 @RequestMapping("/api/urls")
 public class UrlController {
@@ -31,5 +33,11 @@ public class UrlController {
         response.setShortUrl(baseUrl + "/" + response.getShortCode());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{shortCode}")
+    public ResponseEntity<Void> redirectToOriginalUrl( @PathVariable String shortCode) {
+    String originalUrl = this.urlService.getOriginalUrl(shortCode);
+     return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(originalUrl)).build();
     }
 }

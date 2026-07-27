@@ -12,5 +12,6 @@ public interface UrlService {
     UrlResponse getUrlByShortCode(String shortCode);
     List<UrlResponse> getAllUrls();
     void deleteByShortCode(String shortCode);
+    String getOriginalUrl(String shortCode);
 
 }
