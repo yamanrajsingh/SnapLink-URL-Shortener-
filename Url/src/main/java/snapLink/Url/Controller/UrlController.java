@@ -3,6 +3,7 @@ package snapLink.Url.Controller;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,13 +45,18 @@ public class UrlController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<UrlResponse>> getAllUrl()
-    {
-        List<UrlResponse> urls = this.urlService.getAllUrls();
+    public ResponseEntity<Page<UrlResponse>> getAllUrl(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
 
-        urls.forEach(url ->
-                url.setShortUrl("http://localhost:8080/api/urls" + "/" + url.getShortCode()));
-        return ResponseEntity.status(HttpStatus.OK).body(urls);
+        Page<UrlResponse> urls = urlService.getAllUrls(page, size);
+
+        Page<UrlResponse> response = urls.map(url -> {
+            url.setShortUrl("http://localhost:8080/api/urls/" + url.getShortCode());
+            return url;
+        });
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{shortCode}")
@@ -63,5 +69,13 @@ public class UrlController {
         response.put("message", "Short URL deleted successfully.");
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{shortCode}/stats")
+    public ResponseEntity<UrlResponse> getUrlByShoerCode( @PathVariable String shortCode)
+    {
+        UrlResponse response = urlService.getUrlByShortCode(shortCode);
+        response.setShortUrl("http://localhost:8080/api/urls" + "/" + response.getShortCode());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

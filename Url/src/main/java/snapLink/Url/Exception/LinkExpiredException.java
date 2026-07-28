@@ -1,4 +1,8 @@
 package snapLink.Url.Exception;
 
-public class LinkExpiredException {
+public class LinkExpiredException extends RuntimeException{
+
+    public LinkExpiredException(String message) {
+        super(message);
+    }
 }

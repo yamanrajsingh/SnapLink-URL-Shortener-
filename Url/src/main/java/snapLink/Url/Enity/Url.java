@@ -30,6 +30,9 @@ public class Url {
     @Column(name="click_count")
     private Long clickCount = 0L;
 
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();

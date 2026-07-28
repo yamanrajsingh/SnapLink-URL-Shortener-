@@ -3,15 +3,20 @@ package snapLink.Url.Service.Impl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import snapLink.Url.Dto.UrlRequest;
 import snapLink.Url.Dto.UrlResponse;
 import snapLink.Url.Enity.Url;
+import snapLink.Url.Exception.LinkExpiredException;
 import snapLink.Url.Exception.ResourceNotFoundException;
 import snapLink.Url.Repository.UrlRepository;
 import snapLink.Url.Service.UrlService;
 import snapLink.Url.Util.ShortCodeGenerator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +37,6 @@ public class UrlServiceImpl implements UrlService {
         // 2. if present return exiting URL
         // if not create the unique shortCode saved in the URL
         // then append the baseurl to shortCode and return response
-
 
         Optional<Url> existingUrl =
                 urlRepository.findByOriginalUrl(request.getOriginalUrl());
@@ -57,6 +61,11 @@ public class UrlServiceImpl implements UrlService {
         } while (urlRepository.existsByShortCode(shortCode));
 
         url.setShortCode(shortCode);
+        if (request.getExpireAt() != null) {
+            url.setExpiresAt(request.getExpireAt());
+        } else {
+            url.setExpiresAt(LocalDateTime.now().plusMonths(1));
+        }
 
         Url savedUrl = urlRepository.save(url);
 
@@ -71,10 +80,12 @@ public class UrlServiceImpl implements UrlService {
 
 
     @Override
-    public List<UrlResponse> getAllUrls() {
+    public Page<UrlResponse> getAllUrls(int page , int size) {
+        Pageable pageable = PageRequest.of(page, size);
 
-        List<Url> urls = this.urlRepository.findAll();
-        return urls.stream().map(url -> this.modelMapper.map(url,UrlResponse.class)).collect(Collectors.toList());
+        Page<Url> url = this.urlRepository.findAll(pageable);
+
+        return url.map(url1 -> modelMapper.map(url1, UrlResponse.class));
     }
 
     @Override
@@ -92,6 +103,11 @@ public class UrlServiceImpl implements UrlService {
     public String getOriginalUrl(String shortCode)
     {
         Url url  = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
+        if (url.getExpiresAt() != null &&
+                LocalDateTime.now().isAfter(url.getExpiresAt())) {
+
+            throw new LinkExpiredException("This short link has expired.");
+        }
         url.setClickCount(url.getClickCount()+1);
         urlRepository.save(url);
         return url.getOriginalUrl();
