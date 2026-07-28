@@ -32,13 +32,10 @@ public class UrlServiceImpl implements UrlService {
     private final ModelMapper modelMapper;
 
     @Override
-    @CachePut(value = "urls", key = "#result.shortCode")
+    @CachePut(value = "urlResponses", key = "#result.shortCode")
     public UrlResponse createShortUrl(UrlRequest request) {
 
-        // 1. first find the given url is exiting in database;
-        // 2. if present return exiting URL
-        // if not create the unique shortCode saved in the URL
-        // then append the baseurl to shortCode and return response
+
 
         Optional<Url> existingUrl =
                 urlRepository.findByOriginalUrl(request.getOriginalUrl());
@@ -104,7 +101,7 @@ public class UrlServiceImpl implements UrlService {
 
     }
     @Override
-    @Cacheable(value = "urls", key = "#shortCode")
+    @Cacheable(value = "originalUrl", key = "#shortCode")
     public String getOriginalUrl(String shortCode)
     {
         Url url  = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));

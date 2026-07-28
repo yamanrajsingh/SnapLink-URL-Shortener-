@@ -72,7 +72,7 @@ public class UrlController {
     }
 
     @GetMapping("/{shortCode}/stats")
-    public ResponseEntity<UrlResponse> getUrlByShoerCode( @PathVariable String shortCode)
+    public ResponseEntity<UrlResponse> getUrlByShortCode( @PathVariable String shortCode)
     {
         UrlResponse response = urlService.getUrlByShortCode(shortCode);
         response.setShortUrl("http://localhost:8080/api/urls" + "/" + response.getShortCode());
