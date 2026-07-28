@@ -3,6 +3,9 @@ package snapLink.Url.Service.Impl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +20,7 @@ import snapLink.Url.Service.UrlService;
 import snapLink.Url.Util.ShortCodeGenerator;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class UrlServiceImpl implements UrlService {
     private final ModelMapper modelMapper;
 
     @Override
+    @CachePut(value = "urls", key = "#result.shortCode")
     public UrlResponse createShortUrl(UrlRequest request) {
 
         // 1. first find the given url is exiting in database;
@@ -61,6 +63,7 @@ public class UrlServiceImpl implements UrlService {
         } while (urlRepository.existsByShortCode(shortCode));
 
         url.setShortCode(shortCode);
+
         if (request.getExpireAt() != null) {
             url.setExpiresAt(request.getExpireAt());
         } else {
@@ -89,6 +92,7 @@ public class UrlServiceImpl implements UrlService {
     }
 
     @Override
+    @CacheEvict(value = "urls", key = "#shortCode")
     public void deleteByShortCode(String shortCode) {
         Optional<Url> url = this.urlRepository.findByShortCode(shortCode);
         if(url.isPresent()) {
@@ -100,6 +104,7 @@ public class UrlServiceImpl implements UrlService {
 
     }
     @Override
+    @Cacheable(value = "urls", key = "#shortCode")
     public String getOriginalUrl(String shortCode)
     {
         Url url  = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
