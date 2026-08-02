@@ -1,4 +1,15 @@
 package snapLink.Url.Repository;
 
-public interface UserRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import snapLink.Url.Enity.Url;
+import snapLink.Url.Enity.User;
+
+import java.util.Optional;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+ Optional<User> findByEmail(String email);
+ boolean existsByEmail(String email);
+
 }

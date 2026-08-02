@@ -35,8 +35,6 @@ public class UrlServiceImpl implements UrlService {
     @CachePut(value = "urlResponses", key = "#result.shortCode")
     public UrlResponse createShortUrl(UrlRequest request) {
 
-
-
         Optional<Url> existingUrl =
                 urlRepository.findByOriginalUrl(request.getOriginalUrl());
 
