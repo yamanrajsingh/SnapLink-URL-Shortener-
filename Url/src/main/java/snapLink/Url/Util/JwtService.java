@@ -35,10 +35,11 @@ public class JwtService {
 
     // Extract username from token
     public String extractUsername(String token) {
-        return extractUsername(token);
+        return extractClaim(token, Claims::getSubject);
     }
+
     public Date extractExpiration(String token) {
-        return extractExpiration(token);
+        return extractClaim(token, Claims::getExpiration);
     }
 
     public <T> T extractClaim(String token,

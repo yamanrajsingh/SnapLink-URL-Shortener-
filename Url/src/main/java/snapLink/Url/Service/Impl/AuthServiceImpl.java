@@ -1,5 +1,6 @@
 package snapLink.Url.Service.Impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +18,7 @@ import snapLink.Url.Service.AuthService;
 import snapLink.Url.Util.JwtService;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl  implements AuthService {
     @Autowired
     private UserRepository userRepository;
@@ -26,7 +28,9 @@ public class AuthServiceImpl  implements AuthService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
     private CustomUserDetailsService customUserDetailsService;
+    @Autowired
     private JwtService jwtService;
 
     @Override
@@ -53,8 +57,7 @@ public class AuthServiceImpl  implements AuthService {
            UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
 
            String token = jwtService.generateToken(userDetails);
-            return
-
+            return LoginResponse.builder().token(token).type("USER").build();
         }
     }
 }

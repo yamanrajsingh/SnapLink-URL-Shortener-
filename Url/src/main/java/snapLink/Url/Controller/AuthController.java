@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import snapLink.Url.Dto.LoginRequest;
+import snapLink.Url.Dto.LoginResponse;
 import snapLink.Url.Dto.UserRegisterRequest;
 import snapLink.Url.Service.AuthService;
 
@@ -23,6 +25,12 @@ public class AuthController {
         this.authService.register(userRegisterRequest);
         return  ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully.");
     }
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
 
+        LoginResponse loginResponse = authService.login(loginRequest);
+
+        return ResponseEntity.ok(loginResponse);
+    }
 
 }
