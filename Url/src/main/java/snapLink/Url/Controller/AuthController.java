@@ -23,4 +23,6 @@ public class AuthController {
         this.authService.register(userRegisterRequest);
         return  ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully.");
     }
+
+
 }

@@ -1,14 +1,20 @@
 package snapLink.Url.Service.Impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import snapLink.Url.Config.Security.CustomUserDetailsService;
 import snapLink.Url.Dto.LoginRequest;
 import snapLink.Url.Dto.LoginResponse;
 import snapLink.Url.Dto.UserRegisterRequest;
 import snapLink.Url.Enity.User;
 import snapLink.Url.Repository.UserRepository;
 import snapLink.Url.Service.AuthService;
+import snapLink.Url.Util.JwtService;
 
 @Service
 public class AuthServiceImpl  implements AuthService {
@@ -16,6 +22,12 @@ public class AuthServiceImpl  implements AuthService {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    private CustomUserDetailsService customUserDetailsService;
+    private JwtService jwtService;
 
     @Override
     public String register(UserRegisterRequest registerRequest) {
@@ -37,7 +49,11 @@ public class AuthServiceImpl  implements AuthService {
         if(!userRepository.existsByEmail(loginRequest.getEmail())){
             throw new RuntimeException("Email is not exist") ;
         }else {
-            //
+     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+           UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
+
+           String token = jwtService.generateToken(userDetails);
+            return
 
         }
     }
