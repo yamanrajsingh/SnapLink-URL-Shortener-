@@ -9,13 +9,17 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import snapLink.Url.Dto.UrlRequest;
 import snapLink.Url.Dto.UrlResponse;
 import snapLink.Url.Enity.Url;
+import snapLink.Url.Enity.User;
 import snapLink.Url.Exception.LinkExpiredException;
 import snapLink.Url.Exception.ResourceNotFoundException;
 import snapLink.Url.Repository.UrlRepository;
+import snapLink.Url.Repository.UserRepository;
 import snapLink.Url.Service.UrlService;
 import snapLink.Url.Util.ShortCodeGenerator;
 
@@ -29,7 +33,25 @@ public class UrlServiceImpl implements UrlService {
     private final UrlRepository urlRepository;
 
     @Autowired
+    private final UserRepository userRepository;
+
+    @Autowired
     private final ModelMapper modelMapper;
+
+
+// Extract the Current User
+
+    private User getCurrentUser() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        return  this.userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+    }
+
+    User currentUser = getCurrentUser();
 
     @Override
     @CachePut(value = "urlResponses", key = "#result.shortCode")
@@ -64,6 +86,8 @@ public class UrlServiceImpl implements UrlService {
         } else {
             url.setExpiresAt(LocalDateTime.now().plusMonths(1));
         }
+        User current = getCurrentUser();
+        url.setUser(current);
 
         Url savedUrl = urlRepository.save(url);
 
@@ -118,5 +142,9 @@ public class UrlServiceImpl implements UrlService {
         Url url = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
         return this.modelMapper.map(url, UrlResponse.class);
     }
+
+
+
+
 
 }

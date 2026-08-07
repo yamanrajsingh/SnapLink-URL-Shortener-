@@ -5,11 +5,13 @@ import org.springframework.stereotype.Repository;
 import snapLink.Url.Enity.Url;
 import snapLink.Url.Enity.User;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
  Optional<User> findByEmail(String email);
  boolean existsByEmail(String email);
+ List<Url> findByUser(User user);
 
 }
