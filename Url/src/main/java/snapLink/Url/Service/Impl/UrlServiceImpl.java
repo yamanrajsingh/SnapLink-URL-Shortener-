@@ -46,12 +46,17 @@ public class UrlServiceImpl implements UrlService {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResourceNotFoundException("No authenticated user");
+        }
+
         String email = authentication.getName();
 
-        return  this.userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    User currentUser = getCurrentUser();
+
 
     @Override
     @CachePut(value = "urlResponses", key = "#result.shortCode")
@@ -86,6 +91,7 @@ public class UrlServiceImpl implements UrlService {
         } else {
             url.setExpiresAt(LocalDateTime.now().plusMonths(1));
         }
+
         User current = getCurrentUser();
         url.setUser(current);
 
