@@ -61,7 +61,6 @@ public class UrlServiceImpl implements UrlService {
     @Override
     @CachePut(value = "urlResponses", key = "#result.shortCode")
     public UrlResponse createShortUrl(UrlRequest request) {
-
         Optional<Url> existingUrl =
                 urlRepository.findByOriginalUrl(request.getOriginalUrl());
 
@@ -106,12 +105,12 @@ public class UrlServiceImpl implements UrlService {
         return response;
     }
 
-
     @Override
     public Page<UrlResponse> getAllUrls(int page , int size) {
+        User current = getCurrentUser();
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Url> url = this.urlRepository.findAll(pageable);
+        Page<Url> url = this.urlRepository.findByUser(current,pageable);
 
         return url.map(url1 -> modelMapper.map(url1, UrlResponse.class));
     }
@@ -119,7 +118,8 @@ public class UrlServiceImpl implements UrlService {
     @Override
     @CacheEvict(value = "urls", key = "#shortCode")
     public void deleteByShortCode(String shortCode) {
-        Optional<Url> url = this.urlRepository.findByShortCode(shortCode);
+        User current = getCurrentUser();
+        Optional<Url> url =  this.urlRepository.findByShortCodeAndUser(shortCode,current);
         if(url.isPresent()) {
             this.urlRepository.deleteById(url.get().getId());
         }
@@ -145,11 +145,10 @@ public class UrlServiceImpl implements UrlService {
 
     @Override
     public UrlResponse getUrlByShortCode(String shortCode) {
-        Url url = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
+        User curr = getCurrentUser();
+        Url url = this.urlRepository.findByShortCodeAndUser(shortCode,curr).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
         return this.modelMapper.map(url, UrlResponse.class);
     }
-
-
 
 
 
