@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import snapLink.Url.Dto.DashboardResponse;
 import snapLink.Url.Dto.UrlRequest;
 import snapLink.Url.Dto.UrlResponse;
 import snapLink.Url.Enity.Url;
@@ -84,7 +85,7 @@ public class UrlServiceImpl implements UrlService {
         } while (urlRepository.existsByShortCode(shortCode));
 
         url.setShortCode(shortCode);
-        url.setStatus("Active");
+        url.setStatus("ACTIVE");
 
         if (request.getExpireAt() != null) {
             url.setExpiresAt(request.getExpireAt());
@@ -152,6 +153,19 @@ public class UrlServiceImpl implements UrlService {
         Url url = this.urlRepository.findByShortCodeAndUser(shortCode,curr).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
         return this.modelMapper.map(url, UrlResponse.class);
     }
+
+    @Override
+    public DashboardResponse getUserDashboard(){
+        User user = getCurrentUser();
+
+        long totalUrl = this.urlRepository.countByUser(user);
+        long totalClick = this.urlRepository.totalClickCountByUser(user);
+        long totalActiveUrl = this.urlRepository.countByUserAndStatus(user,"ACTIVE");
+        long totalExpireUrl = this.urlRepository.countByUserAndStatus(user,"EXPIRED");
+     return new DashboardResponse(totalUrl,totalClick,totalActiveUrl,totalExpireUrl);
+    }
+
+
 
 
 

@@ -1,21 +1,17 @@
 package snapLink.Url.Controller;
 
 import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import snapLink.Url.Dto.DashboardResponse;
 import snapLink.Url.Dto.UrlRequest;
 import snapLink.Url.Dto.UrlResponse;
-import snapLink.Url.Enity.Url;
 import snapLink.Url.Service.UrlService;
-
 import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,8 +20,6 @@ public class UrlController {
 
     @Autowired
     private  UrlService urlService;
-
-
 
     @PostMapping
     public ResponseEntity<UrlResponse> createShortUrl(
@@ -77,5 +71,12 @@ public class UrlController {
         UrlResponse response = urlService.getUrlByShortCode(shortCode);
         response.setShortUrl("http://localhost:8080/api/urls" + "/" + response.getShortCode());
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<DashboardResponse> getUserDashboard()
+    {
+        DashboardResponse res = this.urlService.getUserDashboard();
+        return new ResponseEntity<>(res,HttpStatus.OK);
     }
 }
