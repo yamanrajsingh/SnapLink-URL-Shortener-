@@ -17,6 +17,8 @@ public class UrlResponse implements Serializable {
 
     private  Long clickCount;
 
+    private String status;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime expiresAt;

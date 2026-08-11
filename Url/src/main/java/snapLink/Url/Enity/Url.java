@@ -33,6 +33,10 @@ public class Url {
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
+    @Column(name = "status")
+    private String status;
+
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();

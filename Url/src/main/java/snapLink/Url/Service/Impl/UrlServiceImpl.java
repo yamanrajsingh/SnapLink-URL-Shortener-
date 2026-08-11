@@ -84,6 +84,7 @@ public class UrlServiceImpl implements UrlService {
         } while (urlRepository.existsByShortCode(shortCode));
 
         url.setShortCode(shortCode);
+        url.setStatus("Active");
 
         if (request.getExpireAt() != null) {
             url.setExpiresAt(request.getExpireAt());
@@ -135,6 +136,8 @@ public class UrlServiceImpl implements UrlService {
         Url url  = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
         if (url.getExpiresAt() != null &&
                 LocalDateTime.now().isAfter(url.getExpiresAt())) {
+            url.setStatus("Expire");
+            this.urlRepository.save(url);
 
             throw new LinkExpiredException("This short link has expired.");
         }
