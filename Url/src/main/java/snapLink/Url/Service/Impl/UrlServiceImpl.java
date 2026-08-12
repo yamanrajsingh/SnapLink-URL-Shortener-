@@ -169,7 +169,7 @@ public class UrlServiceImpl implements UrlService {
     @Override
     public byte[] generateQrCode(String shortCode){
         Url url  = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
-        String shortUrl =  "http://localhost:8080/api/urls/" + shortCode;
+        String shortUrl =  "http://localhost:8080/api/urls" + shortCode;
         return QrCodeGenerator.generate(shortUrl,200,200);
 
     }
