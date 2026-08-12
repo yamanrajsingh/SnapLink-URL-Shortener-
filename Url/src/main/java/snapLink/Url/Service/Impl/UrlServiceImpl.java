@@ -22,6 +22,7 @@ import snapLink.Url.Exception.ResourceNotFoundException;
 import snapLink.Url.Repository.UrlRepository;
 import snapLink.Url.Repository.UserRepository;
 import snapLink.Url.Service.UrlService;
+import snapLink.Url.Util.QrCodeGenerator;
 import snapLink.Url.Util.ShortCodeGenerator;
 
 import java.time.LocalDateTime;
@@ -163,6 +164,14 @@ public class UrlServiceImpl implements UrlService {
         long totalActiveUrl = this.urlRepository.countByUserAndStatus(user,"ACTIVE");
         long totalExpireUrl = this.urlRepository.countByUserAndStatus(user,"EXPIRED");
      return new DashboardResponse(totalUrl,totalClick,totalActiveUrl,totalExpireUrl);
+    }
+
+    @Override
+    public byte[] generateQrCode(String shortCode){
+        Url url  = this.urlRepository.findByShortCode(shortCode).orElseThrow(()-> new ResourceNotFoundException("Short URL is Not Found"));
+        String shortUrl =  "http://localhost:8080/api/urls/" + shortCode;
+        return QrCodeGenerator.generate(shortUrl,200,200);
+
     }
 
 

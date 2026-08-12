@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import snapLink.Url.Dto.DashboardResponse;
@@ -78,5 +79,11 @@ public class UrlController {
     {
         DashboardResponse res = this.urlService.getUserDashboard();
         return new ResponseEntity<>(res,HttpStatus.OK);
+    }
+
+    @GetMapping("/{shortCode}/qrcode")
+    public ResponseEntity<byte[]> generateQrCode(@PathVariable String shortCode){
+        byte [] qrCode = urlService.generateQrCode(shortCode);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(qrCode);
     }
 }

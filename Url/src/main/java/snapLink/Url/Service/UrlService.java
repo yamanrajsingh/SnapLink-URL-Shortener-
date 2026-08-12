@@ -15,4 +15,5 @@ public interface UrlService {
     String getOriginalUrl(String shortCode);
     UrlResponse getUrlByShortCode(String shortCode);
     DashboardResponse getUserDashboard();
+    byte[] generateQrCode(String shortCode);
 }
